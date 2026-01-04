@@ -6,7 +6,6 @@ on:
       - "assets/images/works/formed/**"
       - "tools/**"
       - "package.json"
-      - "package-lock.json"
       - ".github/workflows/works-images.yml"
   workflow_dispatch:
 
@@ -19,13 +18,23 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: "npm"
+          # ✅ cache: "npm" は削除（lock無しでも動くようにする）
 
-      - run: npm install
+      - name: Install deps
+        run: npm install
 
-      - run: npm run works:gen
+      - name: Generate
+        run: npm run works:gen
+
+      - name: Debug dist
+        if: always()
+        run: |
+          echo "=== dist ==="
+          ls -la dist || true
+          echo "=== list zips ==="
+          ls -la dist/*.zip || true
 
       - uses: actions/upload-artifact@v4
         with:
-          name: works-images-zip
-          path: dist/works-images.zip
+          name: works-zips
+          path: dist/*.zip
